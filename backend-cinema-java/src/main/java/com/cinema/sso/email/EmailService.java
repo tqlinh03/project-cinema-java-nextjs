@@ -3,6 +3,8 @@ package com.cinema.sso.email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 // import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,6 +25,8 @@ import static org.springframework.mail.javamail.MimeMessageHelper.MULTIPART_MODE
 public class EmailService {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
+    @Value("${spring.mail.username}")
+    private String email;
 
     @Async
     public void sendEmail(
@@ -31,8 +35,7 @@ public class EmailService {
             EmailTemplateName emailTemplate,
             String confirmationUrl,
             String activationCode,
-            String subject
-    ) throws MessagingException {
+            String subject) throws MessagingException {
         String templateName;
         if (emailTemplate == null) {
             templateName = "confirm-email";
@@ -43,8 +46,7 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(
                 mimeMessage,
                 MULTIPART_MODE_MIXED,
-                UTF_8.name()
-        );
+                UTF_8.name());
         Map<String, Object> properties = new HashMap<>();
         properties.put("username", username);
         properties.put("confirmationUrl", confirmationUrl);
@@ -53,7 +55,7 @@ public class EmailService {
         Context context = new Context();
         context.setVariables(properties);
 
-        helper.setFrom("contact@aliboucoding.com");
+        helper.setFrom(email);
         helper.setTo(to);
         helper.setSubject(subject);
 

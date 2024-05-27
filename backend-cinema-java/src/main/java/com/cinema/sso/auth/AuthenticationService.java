@@ -66,15 +66,6 @@ public class AuthenticationService {
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()));
-        /*
-         * cách 1
-         * var claims = new HashMap<String, Object>();
-         * var user = ((User) auth.getPrincipal());
-         * claims.put("fullName", user.getFullName());
-         * var jwtToken = jwtService.generateToken(claims, (User) auth.getPrincipal());
-         */
-
-        // cách 2
         var user = ((User) auth.getPrincipal());
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -89,16 +80,14 @@ public class AuthenticationService {
     // @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                // todo exception has to be defined
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new RuntimeException("Mã kích hoạt không hợp lệ"));
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
             throw new RuntimeException(
-                    "Activation token has expired. A new token has been send to the same email address");
+                    "Mã thông báo kích hoạt đã hết hạn. Mã thông báo mới đã được gửi đến cùng một địa chỉ email");
         }
-
         var user = userRepository.findById(savedToken.getUser().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
         user.setEnabled(true);
         userRepository.save(user);
 

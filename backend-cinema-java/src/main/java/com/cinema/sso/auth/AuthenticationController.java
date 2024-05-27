@@ -35,7 +35,7 @@ public class AuthenticationController {
         return ResponseEntity.accepted().body("Tạo tài khoản thành công.");
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request, HttpServletResponse response) {
         return ResponseEntity.ok(service.authenticate(request, response));

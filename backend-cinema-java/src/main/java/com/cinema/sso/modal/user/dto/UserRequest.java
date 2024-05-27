@@ -9,21 +9,21 @@ import jakarta.validation.constraints.NotNull;
 public record UserRequest(
     // Integer id,
 
-    @NotNull(message = "First name is not null")
-    @NotEmpty(message = "First name is empty")
+    @NotNull(message = "Họ không được để trống")
+    @NotEmpty(message = "Họ không được để trống")
     String firstName,
 
-    @NotNull(message = "Last name is not null")
-    @NotEmpty(message = "Last name is empty")
+    @NotNull(message = "Tên không được để trống")
+    @NotEmpty(message = "Tên không được để trống")
     String lastName,
 
-    @NotNull(message = "Date of birth is not null")
-    @NotEmpty(message = "Date of birth is empty")
+    @NotNull(message = "Ngày sinh không được để trống")
+    @NotEmpty(message = "Ngày sinh không được để trống")
     LocalDate dateOfBirth,
 
-    @NotNull(message = "Email is not null")
-    @NotEmpty(message = "Email is empty")
-    @Email(message = "Email is invalid")
+    @NotNull(message = "Email không được để trống")
+    @NotEmpty(message = "Email không được để trống")
+    @Email(message = "Email không đúng định dạng")
     String email,
 
     @NotNull(message = "Password is not null")

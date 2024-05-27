@@ -14,7 +14,7 @@ public class UserMapper {
         .lastName(userRequest.lastName())
         .dateOfBirth(userRequest.dateOfBirth())
         .email(userRequest.email())
-        .password(userRequest.password())
+        // .password(userRequest.password())
         .accountLocked(userRequest.accountLocked())
         .enabled(userRequest.enabled())
         .build();

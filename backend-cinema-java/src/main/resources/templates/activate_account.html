@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Activation</title>
+    <title>Kích hoạt tài khoản</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,12 +41,12 @@
 </head>
 <body>
 <div class="container">
-    <h1>Account Activation</h1>
-    <p class="greeting" th:text="'Hello ' + ${username} + ','"></p>
-    <p>Thank you for signing up! Please use the following activation code to activate your account:</p>
+    <h1>Kích hoạt tài khoản</h1>
+    <p class="greeting" th:text="'Xin chào ' + ${username} + ','"></p>
+    <p>Cảm ơn bạn đã đăng ký! Vui lòng sử dụng mã kích hoạt sau để kích hoạt tài khoản của bạn:</p>
     <div class="activation-code"><span th:text="${activation_code}"></span></div>
     <div class="activation-link">
-        <a th:href="${confirmationUrl}" target="_blank">Activate your account</a>
+        <a th:href="${confirmationUrl}" target="_blank">kích hoạt tài khoản</a>
     </div>
 </div>
 </body>

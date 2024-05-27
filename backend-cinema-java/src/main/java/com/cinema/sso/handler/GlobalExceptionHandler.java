@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
                         ExceptionResponse.builder()
                                 .businessErrorCode(BAD_CREDENTIALS.getCode())
                                 .businessErrorDescription(BAD_CREDENTIALS.getDescription())
-                                .error("Login and / or Password is incorrect")
+                                .error("Tên đăng nhập hoặc mật khẩu không chính xác")
                                 .build()
                 );
     }
@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
                 .status(INTERNAL_SERVER_ERROR)
                 .body(
                         ExceptionResponse.builder()
-                                .businessErrorDescription("Internal error, please contact the admin")
+                                .businessErrorDescription("Lỗi nội bộ, vui lòng liên hệ với quản trị viên")
                                 .error(exp.getMessage())
                                 .build()
                 );

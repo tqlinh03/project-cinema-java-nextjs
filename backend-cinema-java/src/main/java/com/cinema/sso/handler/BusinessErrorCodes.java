@@ -11,13 +11,13 @@ import lombok.Getter;
 public enum BusinessErrorCodes {
 
   NO_CODE(0, NOT_IMPLEMENTED, "No code"),
-  INCORRECT_CURRENT_PASSWORD(300, BAD_REQUEST, "Current password is incorrect"),
-  NEW_PASSWORD_DOES_NOT_MATCH(301, BAD_REQUEST, "The new password does not match"),
-  ACCOUNT_LOCKED(302, FORBIDDEN, "User account is locked"),
-  ACCOUNT_DISABLED(303, FORBIDDEN, "User account is disabled"),
-  BAD_CREDENTIALS(304, FORBIDDEN, "Login and / or Password is incorrect"),
+  INCORRECT_CURRENT_PASSWORD(300, BAD_REQUEST, "mật khẩu hiện tại không đúng"),
+  NEW_PASSWORD_DOES_NOT_MATCH(301, BAD_REQUEST, "Mật khẩu mới không khớp"),
+  ACCOUNT_LOCKED(302, FORBIDDEN, "Tài khoản người dùng bị khóa"),
+  ACCOUNT_DISABLED(303, FORBIDDEN, "Tài khoản người dùng chưa kích hoạt"),
+  BAD_CREDENTIALS(304, FORBIDDEN, "Tên đăng nhập hoặc mật khẩu không chính xác"),
   ;
-
+  
   @Getter
   private final int code;
   @Getter
