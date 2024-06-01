@@ -29,24 +29,25 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "role")
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "role")
 public class Role {
-  
     @Id
     @GeneratedValue
-    private Integer id;
+    private Integer _id;
     @Column(unique = true)
     private String name;
-    @ManyToMany(mappedBy = "roles")
-    @JsonIgnore
-    private List<User> user;
+    private String description;
+    private boolean isActive;
+    // @ManyToMany(mappedBy = "roles")
+    // @JsonIgnore
+    // private List<User> user;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+    // @CreatedDate
+    // @Column(nullable = false, updatable = false)
+    // private LocalDateTime createdDate;
 
-    @LastModifiedDate
-    @Column(insertable = false)
-    private LocalDateTime lastModifiedDate;
+    // @LastModifiedDate
+    // @Column(insertable = false)
+    // private LocalDateTime lastModifiedDate;
 }

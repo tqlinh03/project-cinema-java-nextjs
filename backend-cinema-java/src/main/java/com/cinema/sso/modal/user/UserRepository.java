@@ -8,5 +8,4 @@ import com.cinema.sso.modal.user.entities.User;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
   Optional<User> findByEmail(String email);
-  // Optional<User> updateUserToken(String refreshTokeb, Integer id);
 }

@@ -39,30 +39,35 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ExceptionResponse> handleException(DisabledException exp) {
+    public ResponseEntity<ExceptionResponseWrapper> handleException(DisabledException exp) {
+
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+        .businessErrorCode(ACCOUNT_DISABLED.getCode())
+        .businessErrorDescription(ACCOUNT_DISABLED.getDescription())
+        .error(exp.getMessage())
+        .build();
+
+        ExceptionResponseWrapper responseWrapper = new ExceptionResponseWrapper(exceptionResponse);
+
         return ResponseEntity
                 .status(UNAUTHORIZED)
-                .body(
-                        ExceptionResponse.builder()
-                                .businessErrorCode(ACCOUNT_DISABLED.getCode())
-                                .businessErrorDescription(ACCOUNT_DISABLED.getDescription())
-                                .error(exp.getMessage())
-                                .build()
-                );
+                .body(responseWrapper);
     }
 
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ExceptionResponse> handleException() {
+    public ResponseEntity<ExceptionResponseWrapper> handleException() {
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+        .businessErrorCode(BAD_CREDENTIALS.getCode())
+        .businessErrorDescription(BAD_CREDENTIALS.getDescription())
+        .error("Tên đăng nhập hoặc mật khẩu không chính xác")
+        .build();
+
+ExceptionResponseWrapper responseWrapper = new ExceptionResponseWrapper(exceptionResponse);
+
         return ResponseEntity
                 .status(UNAUTHORIZED)
-                .body(
-                        ExceptionResponse.builder()
-                                .businessErrorCode(BAD_CREDENTIALS.getCode())
-                                .businessErrorDescription(BAD_CREDENTIALS.getDescription())
-                                .error("Tên đăng nhập hoặc mật khẩu không chính xác")
-                                .build()
-                );
+                .body(responseWrapper);
     }
 
     @ExceptionHandler(MessagingException.class)
@@ -117,16 +122,32 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleException(Exception exp) {
+//     @ExceptionHandler(Exception.class)
+//     public ResponseEntity<ExceptionResponse> handleException(Exception exp) {
+//         exp.printStackTrace();
+//         return ResponseEntity
+//                 .status(INTERNAL_SERVER_ERROR)
+//                 .body(
+//                         ExceptionResponse.builder()
+//                                 .businessErrorDescription("Lỗi nội bộ, vui lòng liên hệ với quản trị viên")
+//                                 .error(exp.getMessage())
+//                                 .build()
+//                 );
+//     }
+
+         @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponseWrapper> handleException(Exception exp) {
         exp.printStackTrace();
+        
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .businessErrorDescription("Lỗi nội bộ, vui lòng liên hệ với quản trị viên")
+                .error(exp.getMessage())
+                .build();
+
+        ExceptionResponseWrapper responseWrapper = new ExceptionResponseWrapper(exceptionResponse);
+
         return ResponseEntity
                 .status(INTERNAL_SERVER_ERROR)
-                .body(
-                        ExceptionResponse.builder()
-                                .businessErrorDescription("Lỗi nội bộ, vui lòng liên hệ với quản trị viên")
-                                .error(exp.getMessage())
-                                .build()
-                );
+                .body(responseWrapper);
     }
 }

@@ -8,17 +8,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.cinema.sso.auth.dto.AuthenticationResponse;
+import com.cinema.sso.auth.dto.RegistrationRequest;
 import com.cinema.sso.email.EmailService;
 import com.cinema.sso.email.EmailTemplateName;
 import com.cinema.sso.modal.role.RoleRepository;
 import com.cinema.sso.modal.token.TokenRepository;
 import com.cinema.sso.modal.token.entities.Token;
+import com.cinema.sso.modal.user.UserMapper;
 import com.cinema.sso.modal.user.UserRepository;
 import com.cinema.sso.modal.user.UserService;
+import com.cinema.sso.modal.user.dto.UserResponse;
 import com.cinema.sso.modal.user.entities.User;
 import com.cinema.sso.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +39,7 @@ import java.util.List;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final UserMapper  userMapper;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -45,6 +52,10 @@ public class AuthenticationService {
     private String activationUrl;
 
     public void register(RegistrationRequest request) throws MessagingException {
+        var email = userRepository.findByEmail(request.getEmail());
+        if (email.isPresent()) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
         var userRole = roleRepository.findByName("USER")
                 // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
@@ -69,11 +80,12 @@ public class AuthenticationService {
         var user = ((User) auth.getPrincipal());
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
+    
         setRefeshTokenCookie(response, refreshToken);
         userService.updateUserToken(refreshToken, user.getEmail());
+
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -82,9 +94,11 @@ public class AuthenticationService {
         Token savedToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Mã kích hoạt không hợp lệ"));
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
-            sendValidationEmail(savedToken.getUser());
+            // sendValidationEmail(savedToken.getUser());
             throw new RuntimeException(
-                    "Mã thông báo kích hoạt đã hết hạn. Mã thông báo mới đã được gửi đến cùng một địa chỉ email");
+                    "Mã kích hoạt tài khoản đã hết hạn");
+            // "Mã thông báo kích hoạt đã hết hạn. Mã thông báo mới đã được gửi đến email
+            // của bạn.");
         }
         var user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
@@ -101,12 +115,18 @@ public class AuthenticationService {
         var token = Token.builder()
                 .token(generatedToken)
                 .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .expiresAt(LocalDateTime.now().plusMinutes(2))
                 .user(user)
                 .build();
         tokenRepository.save(token);
 
         return generatedToken;
+    }
+
+    void sendCodeEmail(String email) throws MessagingException {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
+        sendValidationEmail(user);
     }
 
     private void sendValidationEmail(User user) throws MessagingException {
@@ -145,20 +165,19 @@ public class AuthenticationService {
             return;
         }
 
-        for(Cookie cookie : cookies) {
-            if(cookie.getName().equals("refresh_token")) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("refresh_token")) {
                 refreshToken = cookie.getValue();
             }
         }
         userEmail = jwtService.extractUsername(refreshToken);
-        if(userEmail != null) {
+        if (userEmail != null) {
             var user = this.userRepository.findByEmail(userEmail)
                     .orElseThrow();
-            if(jwtService.isTokenValid(refreshToken, user)) {
+            if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
@@ -170,6 +189,25 @@ public class AuthenticationService {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(7 * 24 * 60 * 60);
+        response.addCookie(cookie);
+    }
+
+    public UserResponse fetchAccount(String accessToken) {
+        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); 
+        // var user = (User) authentication.getPrincipal();
+        var userName = jwtService.extractUsername(accessToken)  ;
+        System.out.println("user");
+        var data = userRepository.findByEmail(userName)
+            .map(userMapper::toUserResponse)
+            .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
+        return data; 
+    }   
+
+    public void logout(HttpServletResponse response) {
+        var cookie = new Cookie("refresh_token", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
 }

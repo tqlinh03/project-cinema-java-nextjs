@@ -11,26 +11,11 @@ import com.cinema.sso.modal.role.RoleRepository;
 import com.cinema.sso.modal.role.entities.Role;
 
 @SpringBootApplication
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableAsync
 public class CinemaBackend {
 
  	public static void main(String[] args) { 
 		SpringApplication.run(CinemaBackend.class, args);
 	} 
-
-	@Bean 
-	public CommandLineRunner commandLineRunner(RoleRepository roleRepository) {
-		return args -> {
-			if (roleRepository.findByName("USER").isEmpty()) {
-				roleRepository.save(
-					Role.builder()
-						.name("USER")
-						.build()
-				);
-				
-			}
-		};
-	}
-
 }
